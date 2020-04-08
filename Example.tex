@@ -1,0 +1,244 @@
+\documentclass[
+    % Einseitiger oder zweiseitiger Druck?
+    twoside=true,
+    % Bezug: 12-Punkt Schriftgröße
+    fontsize=11pt,
+    % Randaufteilung, siehe Dokumentation "KOMA"-Script
+    DIV=15,
+    %DIV=calc % Alternativ automatisch berechnet
+    % Bindekorrektur: Innen 17mm Platz lassen
+    BCOR=17mm,
+    % Trennlinien
+    headsepline=true, footsepline=false,
+    % Neue Kapitel im zweiseitigen Druck rechts beginnen lassen
+    open=right,
+    % Seitenformat A4
+    a4paper,
+    % Abstract einbinden
+    %abstract=true,
+    % Div. Verzeichnisse ins Inhaltsverzeichnis aufnehmen
+    listof=totoc, bibliography=totoc,
+    % Titelseite aktivieren
+    %titlepage,
+    % Kopf-/Fußzeile in die Satzspiegelberechnung mit einbeziehen
+    headinclude=true, footinclude=false,
+    % Europäischer Satz mit Abstand zwischen Absätzen
+    parskip=half,
+    % Gliederungsnummern ohne abschließenden Punkt darstellen
+    numbers=noenddot,
+    % Deutsche Rechtschreibung
+    ngerman
+% Dokumentenstil: "Buch" aus dem KOMA-Skript-Paket
+]{scrbook}
+
+
+% Autor und Eigenschaften, muss vor PhDSettings
+\title{Beispieldokument}
+\author{Steffen Manzer}
+\date{\today}
+\newcommand{\thesubject}{Handbuch}
+
+% Lade PhDSettings
+\usepackage{PhDSettings}
+
+\usepackage[style=authoryear, sorting=nyt]{biblatex}
+\addbibresource{Example.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Dokumentbeginn
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    % Titelblatt, Vorwort, Verzeichnisse
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % Hier z.B. Titelblatt
+    % \input{...}
+    
+    % Beginn Nummerierung mit römischen Zahlen
+    \pagenumbering{Roman}
+    \setcounter{page}{1}
+    
+    % Hier z.B. Geleitworte
+    % \input{...}
+    
+    % Inhaltsverzeichnis
+    \tableofcontents
+    \newpage
+
+    % Abbildungsverzeichnis
+    \listoffigures
+    \newpage
+    
+    % Tabellenverzeichnis
+    \listoftables
+    \newpage
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    % Abkürzungen
+    % Normalerweise in eigener Datei mit \input{...}
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    \chapter*{Abkürzungen}
+    \addcontentsline{toc}{chapter}{Abkürzungen}
+
+    \bgroup
+    \renewcommand*{\arraystretch}{1.2} % Zeilenabstand in dieser Gruppe
+    \begin{longtable}[l]{ @{} l l @{} }
+    
+    % A
+    \textbf{API}    & Application Programming Interface \\
+    % B
+    \vspace{1mm} \\
+    \textbf{BaFin}  & Bundesanstalt für Finanzdienstleistungsaufsicht \\
+    \textbf{BTC}    & Bitcoin \\
+    % C
+    \vspace{1mm} \\
+    \textbf{CAD}    & Kanadischer Dollar \\
+    \textbf{CNY}    & Chinesischer Yuan (Renminbi) \\
+    % Usw.
+    
+    \end{longtable}
+    \egroup
+    \newpage
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    % Inhalt
+    % Normalerweise in eigener Datei mit \input{...}
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % Arabische Zahlen, von 1 an
+    \pagenumbering{arabic}
+    \setcounter{page}{1}
+
+    \chapter{Beispieldokument für PhDSettings}
+    
+    \section{Abbildungen}
+    \blindtext
+    
+    \begin{figure}[htb]
+        \centering
+        \vspace{3mm}
+        \begin{tikzpicture}
+            
+            % Farben aus https://personal.sron.nl/~pault/
+            \definecolor{PTOL_LIGHT_1}{HTML}{77AADD}
+            \definecolor{PTOL_LIGHT_2}{HTML}{99DDFF}
+            \definecolor{PTOL_LIGHT_3}{HTML}{44BB99}
+            
+            % Standardwerte für jeden Knoten in dieser Grafik
+            \tikzset{every node/.style={font=\small\sffamily, align=center}}
+            
+            \node [circle, fill=PTOL_LIGHT_1, minimum width=60mm] (store_of_value) at (0, 0) {};
+            \node [circle, fill=PTOL_LIGHT_2, minimum width=36mm, above left=9mm of store_of_value.center, anchor=center] (exchange_medium) {};
+            \node [circle, fill=PTOL_LIGHT_3, minimum width=18mm, below left=7mm of exchange_medium.center, anchor=center] (unit_of_account) {};
+            
+            \node [xshift=-8mm, yshift=9mm] at (store_of_value.south east) {Wert-\\aufbewahrungs-\\funktion};
+            \node [below=7mm of exchange_medium.north] {Tauschfunktion};
+            \node at (unit_of_account) {Rechen-\\funktion};
+            
+        \end{tikzpicture}
+    
+        \caption{Hierarchie der Geldfunktionen}
+        \source{Eigene Darstellung in Anlehnung an \cite{Ali2014EconomicsOfDigitalCurrencies}, S.~279.}
+        \label{Grafik:Devisen_Geldfunktionen_Hierarchie}
+    \end{figure}
+
+    \blindtext
+    
+    
+    
+    \section{Tabellen}
+    \blindtext
+    
+    \begin{table}[htb]\pushftn % \pushftn sammelt Fußnoten in Floats
+    
+        % Beschriftung
+        \caption{Verschiedene Bitcoin-Stückelungen}
+        
+        % Erste Spalte: A = Ohne Rand links, Inhalt: Paragraph, 5cm
+        % Zweite Spalte: R = Rechtsbündiger Paragraph, 5cm
+        % Dritte Spalte: p = Linksbündiger Paragraph, 2cm
+        % Letzte Spalte: Z = Ohne Rand rechts, Inhalt: X (autofill von tabularx)
+        \begin{tabularx}{\textwidth}{ A{p{5cm}} R{3.8cm} p{2cm} Z{X} }
+            
+            % Rahmen
+            \tablehead
+            
+            {Einheit} &
+                {Menge [BTC]} &
+                {Abkürzung} &
+                {Anmerkung} \\
+            
+            % Abgrenzung Kopfzeile
+            \tablebody
+            
+            Rechnerische Maximalmenge%
+              \footnote{Berechnet gemäß $10^{-8} \cdot \sum_{i=0}^{32} (210\,000 \cdot \left \lfloor{50 \cdot 10^8 \cdot 2^{-i}}\right \rfloor )$, vgl. \cite{BitcoinWiki_ControlledSupply}.} &
+                20.999.999,976\,900\,00 &
+                &
+                \\
+            
+            bitcoin &
+                1,000\,000\,00 &
+                BTC &
+                Basiseinheit \\
+            
+            milli-bitcoin &
+                0,001\,000\,00 &
+                mBTC &
+                SI-Präfix Milli: $10^{-3}$ \\
+            
+            micro-bitcoin, bit &
+                0,000\,001\,00 &
+                µBTC, Bit &
+                SI-Präfix Mikro: $10^{-6}$ \\
+            
+            satoshi &
+                0,000\,000\,01 &
+                sat &
+                Aktuell kleinste Einheit \\
+            
+            % Rahmen
+            \tablefoot
+        \end{tabularx}
+        
+        % Quelle und Label
+        \source{Eigene Zusammenstellung, Stand April 2020.}
+        \label{Tabelle:Krypto_Stueckelung}
+    \end{table}\popftn
+    % \popftn fügt gesammelte Fußnoten ein.
+    % To Do: Position der eingefügten Fußnoten prüfen
+
+    \blindtext
+
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    % Anhang
+    % Hier nur Glossar.
+    % Normalerweise in eigener Datei mit \input{...}
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    \chapter*{Glossar}
+    \addcontentsline{toc}{chapter}{Glossar}
+    \runinhead{Adresse} Bitcoin-Adressen sind eindeutige Zeichenketten, die die Funktion einer Kontonummer erfüllen.
+        Eine Beispiel-Adresse sieht wie folgt aus: 1PC9""aZC4""hNX2""rmmr""t7uH""TfYA""S3hR""bph4UN.
+    
+    \runinhead{Bitcoin} Erste dezentrale, auf kryptografischen Funktionen basierende Währung, die ohne eine vertrauenswürdige Instanz funktioniert. [...]
+    
+    \runinhead{Blockchain} Sammlung beliebiger Daten bzw. Dokumente, die miteinander, typischerweise zeitlich, in Verbindung gebracht werden. [...]
+    
+    \runinhead{Node} Teilnehmer eines Peer-to-Peer-Netzwerkes.
+    % ...
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    % Literatur
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    \printbibliography
+    
+\end{document}

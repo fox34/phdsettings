@@ -1,0 +1,398 @@
+\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+\ProvidesPackage{PhDSettings}[2020/04/08 LaTeX helpers for Ph.D. thesis]
+
+%
+% Anmerkung:
+% Laedt das Paket "minted" fuer formatierte Quelltexte.
+% Fuer minted muss LaTeX mit der Option --shell-escape aufgerufen werden.
+%
+% Zudem muss das Paket "pgf-pie" vermutlich von Hand installiert werden.
+%
+
+
+% Hyphenation
+% - hyphen sign, no others in this word (hy-phenation > hy-|phenation)
+% "= hypen sign that allows other breaks (h"=yphenation > h-|y|phen|a|tion)
+% "~ hyphen sign without line break (hy"~phenation > hy-phenation)
+% \- possible hyphenation with sign (h\-yphenation > h|y|phen|a|tion)
+% "" possible hyphenation without sign ((super"~)""hyphenation > (super-)*hy|pen|a|tion)
+% "| break ligature and allow hyphenation
+%
+% the pipe indicates possible line break with hyphen sign
+% asterisk indicates possible line break without sign
+
+
+% Basispakete fuer Schrift und Satz
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{lmodern}
+
+% Euro-Zeichen
+\RequirePackage{textcomp}
+\RequirePackage[ngerman]{babel}
+
+% Erforderlich fuer korrekte Anfuehrungszeichen in Literatur
+\RequirePackage{fvextra} % "Warning: csquotes should be loaded after fvextra [...]"
+\RequirePackage[style=german]{csquotes}
+
+% Zugriff auf Titel, Autor und Datum
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
+
+
+% Farben
+\RequirePackage[table,dvipsnames]{xcolor}
+
+% Font Awesome: Icons
+% http://ctan.math.washington.edu/tex-archive/fonts/fontawesome5/doc/fontawesome5.pdf
+\RequirePackage{fontawesome5}
+
+% includegraphics, definecolors
+\RequirePackage{graphicx}
+
+% Mehrere Spalten
+\RequirePackage{multicol}
+
+% Gleichmaessigerer Textsatz
+\RequirePackage{microtype}
+
+
+% Absatzabstand
+\parskip = \medskipamount
+
+% Zeilenabstand 1,5
+\RequirePackage[onehalfspacing]{setspace}
+
+% Zeilenabstand 1,5 in Tabellen
+\renewcommand{\arraystretch}{1.5}
+
+% Abstand zwischen Floats im Text und Text
+% https://tex.stackexchange.com/a/26522/193364
+\setlength{\intextsep}{14.0pt plus 2.0pt minus 2.0pt}
+
+% Abstand zur Fussnote vergroessern
+% https://tex.stackexchange.com/a/371139
+\addtolength{\skip\footins}{6pt}
+
+
+% Befehl "\runinhead" fuer Glossar
+% https://github.com/JonHoy/Latex-Practice/blob/master/Books/Springer/contributed%2Bbooks/styles/svmult.cls
+\makeatletter
+\newcommand\runinhead{%
+    \@startsection{paragraph}{4}{\z@}%
+    {-6\p@}%
+    {-6\p@}%
+    {\normalfont\normalsize\bfseries\boldmath
+    \rightskip=\z@ \@plus 8em\pretolerance=10000%
+    }%
+}
+\makeatother
+
+% Grafikabstaende
+\fboxsep = 2pt % Abstand innerhalb von fbox'en
+\fboxrule = .3pt % Randstaerke von fbox'en
+
+% Seitenabstaende
+\headheight = 10mm % Abstand vom oberen Rand zum Text
+\footskip = 10mm
+\oddsidemargin = 0mm % Rand aller ungeraden Seiten
+\textwidth  = 160mm % Gesamtbreite des Textrumpfes
+\textheight = 235mm % Gesamthoehe des Textrumpfes
+
+% Kopf-/Fusszeile
+\RequirePackage{scrlayer-scrpage}
+\clearpairofpagestyles
+\ohead{\headmark} % Kopfzeile aussen: Links: Kapitel, rechts: Unterkapitel
+\ofoot*{\pagemark} % Fusszeile aussen: Seite
+
+
+% Nummerierung bis Gliederungsebene 3
+% Ggf. auch die Tiefe des Inhaltsverzeichnisses anpassen.
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Schrift "Source Code Pro" fuer Typewriter verwenden, besser zu lesen
+\RequirePackage{sourcecodepro}
+
+
+% Quelltext mit minted
+\RequirePackage[newfloat,cachedir=.mintedcache]{minted}
+\usemintedstyle{friendly}
+\newmintedfile{R}{fontsize=\small, frame=single, framesep=6pt, framerule=.3pt}
+
+\newenvironment{code}{\captionsetup{type=listing}}{}
+\SetupFloatingEnvironment{listing}{name=Quelltext}
+
+% R aus LaTeX heraus ausfuehren
+\newcommand{\executeR}[1]{\ignorespaces\immediate\write18{echo; echo "executeR: #1:"; R --slave --vanilla -f '#1' --args FromLaTeX; echo}\ignorespaces}
+
+
+
+% Nummerierung ohne Kapitel
+\RequirePackage{chngcntr}
+\counterwithout{footnote}{chapter}
+\counterwithout{listing}{chapter}
+%\counterwithout{figure}{chapter}
+%\counterwithout{table}{chapter}
+
+
+% Seitenumbruch innerhalb von Listen vermeiden? Klappt aber nicht 100%tig wie gewuenscht
+% https://tex.stackexchange.com/a/16264
+%\makeatletter
+%\newcommand*\nobreaklist{\@beginparpenalty=\@M}
+%\makeatother
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tabellen
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{tabularx,booktabs,array,multirow} % Tabellenformatierung
+\RequirePackage{longtable} % Tabellen ueber mehrere Seiten
+
+% Zelldefinitionen
+% Rechtsbuendiger Paragraph
+% Verwendung: R{breite}, z.B. R{1cm}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% Zentrierter Paragraph
+% Verwendung: C{breite}, z.B. C{1cm}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% Dicke vertikale Linie
+\newcolumntype{I}{!{\vrule width \heavyrulewidth}}
+
+% Erste Spalte mit rowcolors ohne Rand links (Argument = Zielspalte)
+% Verwendung: z.B. A{l} oder in Verbindung mit Paragraphen: A{p{1cm}} oder A{R{1cm}}
+\newcolumntype{A}[1]{@{} >{\columncolor{white}[0pt][\tabcolsep]} #1}
+
+% Letzte Spalte mit rowcolors ohne Rand rechts (Argument = Zielspalte)
+% Verwendung: Wie A
+\newcolumntype{Z}[1]{>{\columncolor{white}[\tabcolsep][0pt]} #1 @{}}
+
+
+% Head/Body/Foot
+\newcommand{\tablehead}{\toprule[\heavyrulewidth]\rowcolor{white}} % Kopfzeile immer weiss
+\newcommand{\tablebody}{\midrule[\lightrulewidth]}
+\newcommand{\tablefoot}{\bottomrule[\heavyrulewidth]}
+
+% Tabellen-Formatierung setzen
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+
+% Standardwerte fuer Tabellen: tabularx-Umgebung neu definieren
+\let\regulartabularx=\tabularx
+\renewcommand{\tabularx}{%
+    \small% Kleinere Schrift
+    \rowcolors{2}{gray!5}{}{}% Wechselnde Zeilenfarben
+    \vspace{5pt}% Abstand zwischen Caption und Tabellenbeginn
+    \regulartabularx%
+}
+
+% Schoener waere es sicherlich mit einem optionalen Parameter oder die Stern-Variante,
+% aber weil LaTeX so schoen einfach und verstaendlich ist machen wir lieber einen eigenen Befehl,
+% weil mir meine Zeit zu schade dafuer ist
+\newcommand{\tabularxnorowcolors}{%
+    \small% Kleinere Schrift
+    \vspace{5pt}% Abstand zwischen Caption und Tabellenbeginn
+    \regulartabularx%
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TikZ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{tikz}
+\usetikzlibrary{decorations.pathreplacing} % Braces etc.
+\usetikzlibrary{positioning} % Relative Positionierung von Knoten: 3pt left of node
+\usetikzlibrary{backgrounds} % Rahmen ("show background rectangle" aka "framed")
+\usetikzlibrary{fit} % Knoten um andere Knoten herum: fit=(node_a) (node_b) ...
+
+% Baumdiagramme
+\RequirePackage[linguistics]{forest}
+
+% Kreisdiagramme
+% Achtung: Paket manuell installiert
+\RequirePackage{pgf-pie}
+
+% Standardschrift fuer tikz setzen
+\tikzset{every picture/.style={font=\sffamily}}
+
+% Rahmen um jedes forest setzen
+% Funktioniert nicht mit Forest: \tikzset{every picture/.style={show background rectangle}}
+\forestset{default preamble={tikz+={\tikzset{show background rectangle}}}}
+
+% Bewertungspunkte: \score{1}{3} = 1 von 3 Punkten = *oo
+\newcommand\score[2]{
+\pgfmathsetmacro\pgfxa{#1+1}
+\tikzstyle{scorestars}=[circle, draw, inner sep=1.8pt, anchor=west]
+  \begin{tikzpicture}[baseline]
+    \foreach \i in {1,...,#2} {
+    \pgfmathparse{(\i<=#1?"black!60":"white")}
+    \edef\starcolor{\pgfmathresult}
+    \draw (\i*1.6ex,3pt) node[name=star\i, scorestars, fill=\starcolor] {};
+   }
+  \end{tikzpicture}
+}
+
+% Fortschrittsbalken: \progress{90.3}{3.5cm} # Prozent, Gesamtbreite
+\newcommand\progress[2]{
+  \begin{tikzpicture}[baseline=1mm]
+    \pgfmathparse{(#2*#1/100)}
+    \edef\barwidth{\pgfmathresult}
+    \fill [black!20] (0,0) rectangle (\barwidth, .4);
+    \draw [black!50] (0,0) rectangle (#2, .4);
+    \node [anchor=west, inner sep=0, font=\smaller\sffamily] at (.1, .2) {\StrSubstitute{#1}{.}{,}\,\%};
+  \end{tikzpicture}
+}
+\newcommand\progressLessThanOnePercent[1]{
+  \begin{tikzpicture}[baseline=1mm]
+    \draw [black!50] (0,0) rectangle (#1, .4);
+    \node [anchor=west, inner sep=0, font=\smaller\sffamily] at (.1, .2) {$<$~0,1\,\%};
+  \end{tikzpicture}
+}
+
+
+% Captions
+\RequirePackage[
+    font=small,
+    labelfont=bf,
+    format=hang,
+    justification=justified,
+    singlelinecheck=false
+]{caption}
+\captionsetup[listing]{aboveskip=-4pt}
+%\captionsetup[figure]{margin=15pt}%
+%\captionsetup[table]{skip=15pt} % Quelle unterhalb Tabellen weiter absetzen
+
+% Quelle in Grafik/Tabellen angeben
+% https://tex.stackexchange.com/a/246285
+\newcommand{\source}[1]{\vspace{-5pt} \caption*{\textbf{Quelle:} {#1}} } 
+
+
+
+% Sinnvoller Alias fuer noch kleinere Schrift
+\let\smaller\footnotesize
+
+% Neue Zeile nach \paragraph
+\let\nonewlineparagraph\paragraph
+\renewcommand{\paragraph}[1]{\nonewlineparagraph{#1}\mbox{}\\}
+
+
+
+% Fussnoten innerhalb von Floats (Tabellen, Grafiken)
+% Mit \pushftn vor Float sammeln und mit \popftn am Ende freigeben.
+% Korrekte Seitenplatzierung muss geprueft werden
+% https://tex.stackexchange.com/a/43695
+\makeatletter
+\newtoks\FTN@ftn
+\def\pushftn{%
+ \let\@footnotetext\FTN@ftntext\let\@xfootnotenext\FTN@xftntext
+  \let\@xfootnote\FTN@xfootnote}
+\def\popftn{%
+ \global\FTN@ftn\expandafter{\expandafter}\the\FTN@ftn}
+\long\def\FTN@ftntext#1{%
+  \edef\@tempa{\the\FTN@ftn\noexpand\footnotetext
+                    [\the\csname c@\@mpfn\endcsname]}%
+  \global\FTN@ftn\expandafter{\@tempa{#1}}}%
+\long\def\FTN@xftntext[#1]#2{%
+  \global\FTN@ftn\expandafter{\the\FTN@ftn\footnotetext[#1]{#2}}}
+\def\FTN@xfootnote[#1]{%
+   \begingroup
+     \csname c@\@mpfn\endcsname #1\relax
+     \unrestored@protected@xdef\@thefnmark{\thempfn}%
+   \endgroup
+   \@footnotemark\FTN@xftntext[#1]}
+
+\makeatother
+
+
+% Fussnoten: Abstand zwischen Ziffer und Text
+% https://tex.stackexchange.com/a/79065
+\RequirePackage[hang]{footmisc}
+\setlength{\footnotemargin}{-0.5em}
+\makeatletter
+\ifFN@para
+\else
+  \long\def\@makefntext#1{%
+    \ifFN@hangfoot
+      \bgroup
+      \setbox\@tempboxa\hbox{%
+        \ifdim\footnotemargin>0pt
+          \hb@xt@\footnotemargin{\@makefnmark\hss}%
+        \else
+          \@makefnmark\hskip-\footnotemargin      %%Changed here
+        \fi
+      }%
+      \leftmargin\wd\@tempboxa
+      \rightmargin\z@
+      \linewidth \columnwidth
+      \advance \linewidth -\leftmargin
+      \parshape \@ne \leftmargin \linewidth
+      \footnotesize
+      \@setpar{{\@@par}}%
+      \leavevmode
+      \llap{\box\@tempboxa}%
+      \parskip\hangfootparskip\relax
+      \parindent\hangfootparindent\relax
+    \else
+      \parindent1em
+      \noindent
+      \ifdim\footnotemargin>\z@
+        \hb@xt@ \footnotemargin{\hss\@makefnmark}%
+      \else
+        \ifdim\footnotemargin=\z@
+          \llap{\@makefnmark}%
+        \else
+          \llap{\hb@xt@ -\footnotemargin{\@makefnmark\hss}}%
+        \fi
+      \fi
+    \fi
+    \footnotelayout#1%
+    \ifFN@hangfoot
+      \par\egroup
+    \fi
+  }
+\fi
+\makeatother
+
+% vdots ohne vertikalen Abstand
+% https://tex.stackexchange.com/a/112212/193364
+\makeatletter
+\DeclareRobustCommand{\rvdots}{%
+  \vbox{
+    \baselineskip4\p@\lineskiplimit\z@
+    \kern-\p@
+    \hbox{.}\hbox{.}\hbox{.}
+  }}
+\makeatother
+
+% String-Funktionen
+% Wuerde ohnehin von BibLaTeX geladen werden
+\RequirePackage{xstring}
+
+% Work in progress: Demotexte
+\RequirePackage{blindtext}
+
+
+% hyperref muss als letztes Paket geladen werden. Das weiss man doch...
+% "My guess is that you are not following the rule "load hyperref as the last package" and that something is redefining footnote."
+% https://tex.stackexchange.com/a/16269/193364
+\RequirePackage[
+    colorlinks=true, hyperindex,
+    linkcolor=black, citecolor=black, urlcolor=black,
+    plainpages=false, pdfpagelabels=true,
+    bookmarksopen=true, bookmarksopenlevel=0, bookmarksnumbered=true,
+    pdfauthor={\theauthor},
+    pdftitle={\thetitle},
+    pdfsubject={\thesubject},
+    pdfkeywords={}
+]{hyperref}
+
+% URL-Schriftart (Paket url, geladen mit hyperref)
+\urlstyle{same}
+
