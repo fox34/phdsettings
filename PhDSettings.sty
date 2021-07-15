@@ -3,14 +3,13 @@
 
 %
 % Anmerkung:
-% Laedt das Paket "minted" fuer formatierte Quelltexte.
-% Fuer minted muss LaTeX mit der Option --shell-escape aufgerufen werden.
+% Lädt das Paket "minted" für formatierte Quelltexte.
+% Für minted muss LaTeX mit der Option --shell-escape aufgerufen werden.
 %
 % Zudem muss das Paket "pgf-pie" vermutlich von Hand installiert werden.
 %
 
-
-% Hyphenation
+%%% Hyphenation
 % - hyphen sign, no others in this word (hy-phenation > hy-|phenation)
 % "= hypen sign that allows other breaks (h"=yphenation > h-|y|phen|a|tion)
 % "~ hyphen sign without line break (hy"~phenation > hy-phenation)
@@ -22,20 +21,52 @@
 % asterisk indicates possible line break without sign
 
 
-% Basispakete fuer Schrift und Satz
+%%% Basispakete und Einstellungen für Schrift und Satz
 \RequirePackage[T1]{fontenc}
-\RequirePackage[utf8]{inputenc}
 \RequirePackage{lmodern}
+
+% Sprachanpassung, verbesserte Trennregeln
+\RequirePackage[ngerman]{babel}
+\RequirePackage{microtype}
 
 % Euro-Zeichen
 \RequirePackage{textcomp}
-\RequirePackage[ngerman]{babel}
 
-% Erforderlich fuer korrekte Anfuehrungszeichen in Literatur
+% Erforderlich für korrekte Anführungszeichen in Literatur
 \RequirePackage{fvextra} % "Warning: csquotes should be loaded after fvextra [...]"
 \RequirePackage[style=german]{csquotes}
 
-% Zugriff auf Titel, Autor und Datum
+% Befehl "\runinhead" für Glossar
+% https://github.com/JonHoy/Latex-Practice/blob/master/Books/Springer/contributed%2Bbooks/styles/svmult.cls
+\makeatletter
+\newcommand\runinhead{%
+    \@startsection{paragraph}{4}{\z@}%
+    {-6\p@}%
+    {-6\p@}%
+    {\normalfont\normalsize\bfseries\boldmath
+    \rightskip=\z@ \@plus 8em\pretolerance=10000%
+    }%
+}
+\makeatother
+
+% Listen bearbeiten
+\RequirePackage{enumitem}
+
+% Dann: Listenabstand links verringern, z.B. in multicols:
+% \bgroup
+% \setlist[itemize]{leftmargin=16pt}
+% ...
+% \egroup
+
+% Sinnvoller Alias für noch kleinere Schrift
+\let\smaller\footnotesize
+
+% Neue Zeile nach \paragraph
+\let\nonewlineparagraph\paragraph
+\renewcommand{\paragraph}[1]{\nonewlineparagraph{#1}\mbox{}\\}
+
+
+%%% Zugriff auf Titel, Autor und Datum
 \makeatletter
 \let\thetitle\@title
 \let\theauthor\@author
@@ -43,23 +74,55 @@
 \makeatother
 
 
-% Farben
+%%% Farben, Grafiken und Symbole
 \RequirePackage[table,dvipsnames]{xcolor}
 
-% Font Awesome: Icons
-% http://ctan.math.washington.edu/tex-archive/fonts/fontawesome5/doc/fontawesome5.pdf
+% Font Awesome
 \RequirePackage{fontawesome5}
 
 % includegraphics, definecolors
 \RequirePackage{graphicx}
 
+% Labels
+\RequirePackage[
+    font=small,
+    labelfont=bf,
+    format=hang,
+    justification=justified,
+    singlelinecheck=false
+]{caption}
+\captionsetup[listing]{aboveskip=-4pt}
+%\captionsetup[figure]{margin=15pt}%
+%\captionsetup[table]{skip=15pt} % Quelle unterhalb Tabellen weiter absetzen
+%\captionsetup[box]{...}
+
+% Quelle in Grafik/Tabellen angeben
+% Variante 1: Sauber und elegant, aber ohne hängenden Einzug: https://tex.stackexchange.com/a/246285
+%\newcommand{\source}[1]{\vspace{-5pt} \caption*{\textbf{Quelle:} {#1}} } 
+
+% Variante 2 mit hängendem Einzug: https://tex.stackexchange.com/a/24610
+\RequirePackage{hanging, calc}
+\newlength{\hangwidth} % Breite des Einzugs für den folgenden Befehl
+\newcommand{\hangingindent}[1]{\settowidth{\hangwidth}{#1}\hangpara{\hangwidth}{1}#1}
+\newcommand{\source}[1]{%
+	\vspace{2pt}% Abstand zum eigentlichen Label etwas vergrößern
+	\raggedright% Zwingend linksbündig
+	\small% Schriftgröße dem Label (siehe Paket caption oben)
+	\hangingindent{\textbf{Quelle: }}% Hängenden Einzug anlegen
+	#1% Text der Quelle hinzufügen
+}
+
 % Mehrere Spalten
 \RequirePackage{multicol}
 
-% Gleichmaessigerer Textsatz
-\RequirePackage{microtype}
+% cmark (crossmark), xmark (x-mark)-Shortcuts
+\RequirePackage{amssymb}
+\RequirePackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
 
 
+%%% Abstände
 % Absatzabstand
 \parskip = \medskipamount
 
@@ -73,34 +136,21 @@
 % https://tex.stackexchange.com/a/26522/193364
 \setlength{\intextsep}{14.0pt plus 2.0pt minus 2.0pt}
 
-% Abstand zur Fussnote vergroessern
+% Abstand zur Fussnote vergrössern
 % https://tex.stackexchange.com/a/371139
 \addtolength{\skip\footins}{6pt}
 
-
-% Befehl "\runinhead" fuer Glossar
-% https://github.com/JonHoy/Latex-Practice/blob/master/Books/Springer/contributed%2Bbooks/styles/svmult.cls
-\makeatletter
-\newcommand\runinhead{%
-    \@startsection{paragraph}{4}{\z@}%
-    {-6\p@}%
-    {-6\p@}%
-    {\normalfont\normalsize\bfseries\boldmath
-    \rightskip=\z@ \@plus 8em\pretolerance=10000%
-    }%
-}
-\makeatother
-
-% Grafikabstaende
+% fbox-Abstände
 \fboxsep = 2pt % Abstand innerhalb von fbox'en
-\fboxrule = .3pt % Randstaerke von fbox'en
+\fboxrule = .3pt % Randstärke von fbox'en
 
-% Seitenabstaende
+% Seitenabstände
+% Für A4 / A5 anpassen
 \headheight = 10mm % Abstand vom oberen Rand zum Text
 \footskip = 10mm
 \oddsidemargin = 0mm % Rand aller ungeraden Seiten
 \textwidth  = 160mm % Gesamtbreite des Textrumpfes
-\textheight = 235mm % Gesamthoehe des Textrumpfes
+\textheight = 235mm % Gesamthöhe des Textrumpfes
 
 % Kopf-/Fusszeile
 \RequirePackage{scrlayer-scrpage}
@@ -109,52 +159,89 @@
 \ofoot*{\pagemark} % Fusszeile aussen: Seite
 
 
-% Nummerierung bis Gliederungsebene 3
-% Ggf. auch die Tiefe des Inhaltsverzeichnisses anpassen.
+%%% Quelltexte
+% newfloat, wird durch minted automatisch geladen
+% https://tex.stackexchange.com/questions/95631/defining-a-new-type-of-floating-environment
+%\RequirePackage{newfloat}
+%\DeclareFloatingEnvironment[within=chapter,fileext=boxlst,placement={!ht},name="Box"]{box}
+
+% Schrift "Source Code Pro" für Typewriter verwenden, besser zu lesen
+\RequirePackage{sourcecodepro}
+
+% Minted für schönere Quelltextformatierung
+\RequirePackage[
+	newfloat, % newfloat-Paket nutzen
+	cachedir=.mintedcache % Cache-Verzeichnis
+]{minted}
+
+% R-Eigenschaften
+\newmintedfile{R}{
+	breaklines=true, % Automatischer Zeilenumbruch
+	breakindentnchars=4, % Einrücken bei Zeilenumruch
+	breaksymbolleft=, % Kein Symbol bei Zeilenumbruch
+	fontsize=\small, % Schriftgröße
+	frame=single, % Vollständiger Rahmen
+	framesep=6pt, % Innerer Abstand
+	framerule=.3pt, % Rahmenbreite
+	numbers=left, % Zeilennummern links
+	rulecolor=\color{gray!55}, % Rahmenfarbe
+	style=friendly, % Stil -> vgl. pygmentize -L styles
+	xleftmargin=2em, % Zeilennummern inline
+}
+
+% Zeilennummern formatieren
+\renewcommand{\theFancyVerbLine}{%
+	\sffamily\footnotesize\color{gray!75!black}%
+	\arabic{FancyVerbLine}%
+}
+
+% Quelltext-Environment einrichten
+\SetupFloatingEnvironment{listing}{name=Quelltext, listname=Quelltexte, placement=h!}
+
+% R aus LaTeX heraus ausführen
+\newcommand{\executeR}[1]{%
+	\ignorespaces%
+	\immediate%
+	\write18{echo; echo "executeR: #1:"; R --slave --vanilla -f '#1' --args FromLaTeX; echo}%
+	\ignorespaces%
+}
+
+
+%%% Struktur und Gliederung
+% Nummerierung bis Gliederungsebene 3. -> Ggf. auch die Tiefe des Inhaltsverzeichnisses anpassen.
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
-% Schrift "Source Code Pro" fuer Typewriter verwenden, besser zu lesen
-\RequirePackage{sourcecodepro}
-
-
-% Quelltext mit minted
-\RequirePackage[newfloat,cachedir=.mintedcache]{minted}
-\usemintedstyle{friendly}
-\newmintedfile{R}{fontsize=\small, frame=single, framesep=6pt, framerule=.3pt}
-
-\newenvironment{code}{\captionsetup{type=listing}}{}
-\SetupFloatingEnvironment{listing}{name=Quelltext}
-
-% R aus LaTeX heraus ausfuehren
-\newcommand{\executeR}[1]{\ignorespaces\immediate\write18{echo; echo "executeR: #1:"; R --slave --vanilla -f '#1' --args FromLaTeX; echo}\ignorespaces}
-
-
+% Inhaltsübersicht, funktioniert nur bis zum ersten nachfolgenden \tableofcontents. https://komascript.de/node/1003
+\newcommand*{\showtableofcontents}{%
+  \begingroup
+    \edef\EndGroup{\endgroup % EndGroup vs. endgroup zum Einfangen der tocdepth
+      \noexpand\setcounter{tocdepth}{\the\value{tocdepth}}}%
+    \csname @fileswfalse\endcsname
+    \setcounter{tocdepth}{1}% <- Gliederungstiefe
+    \def\contentsname{Inhaltsübersicht}% <- Kapitelbezeichnung
+    \tableofcontents
+  \EndGroup
+}
 
 % Nummerierung ohne Kapitel
 \RequirePackage{chngcntr}
 \counterwithout{footnote}{chapter}
 \counterwithout{listing}{chapter}
-%\counterwithout{figure}{chapter}
-%\counterwithout{table}{chapter}
 
-
-% Seitenumbruch innerhalb von Listen vermeiden? Klappt aber nicht 100%tig wie gewuenscht
+% Seitenumbruch innerhalb von Listen vermeiden? Klappt aber nicht 100%tig wie gewünscht
 % https://tex.stackexchange.com/a/16264
 %\makeatletter
 %\newcommand*\nobreaklist{\@beginparpenalty=\@M}
 %\makeatother
 
 
+%%% Tabellen
+\RequirePackage{tabularx,booktabs,multirow} % Tabellenformatierung
+\RequirePackage{longtable} % Tabellen über mehrere Seiten
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Tabellen
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\RequirePackage{tabularx,booktabs,array,multirow} % Tabellenformatierung
-\RequirePackage{longtable} % Tabellen ueber mehrere Seiten
-
-% Zelldefinitionen
-% Rechtsbuendiger Paragraph
+%% Zelldefinitionen
+% Rechtsbündiger Paragraph
 % Verwendung: R{breite}, z.B. R{1cm}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 
@@ -183,43 +270,49 @@
 \setlength{\aboverulesep}{0pt}
 \setlength{\belowrulesep}{0pt}
 
-% Standardwerte fuer Tabellen: tabularx-Umgebung neu definieren
+% Standardwerte für Tabellen: tabularx-Umgebung neu definieren
 \let\regulartabularx=\tabularx
-\renewcommand{\tabularx}{%
-    \small% Kleinere Schrift
+\let\endregulartabularx=\endtabularx
+\renewenvironment{tabularx}{%
+    \small%
     \rowcolors{2}{gray!5}{}{}% Wechselnde Zeilenfarben
     \vspace{5pt}% Abstand zwischen Caption und Tabellenbeginn
     \regulartabularx%
-}
-
-% Schoener waere es sicherlich mit einem optionalen Parameter oder die Stern-Variante,
-% aber weil LaTeX so schoen einfach und verstaendlich ist machen wir lieber einen eigenen Befehl,
-% weil mir meine Zeit zu schade dafuer ist
-\newcommand{\tabularxnorowcolors}{%
-    \small% Kleinere Schrift
-    \vspace{5pt}% Abstand zwischen Caption und Tabellenbeginn
-    \regulartabularx%
+}{%
+    \endregulartabularx%
+    \vspace{5pt}% Abstand zwischen Tabellenende und Quellenangabe, wenn nicht oben bei \source
 }
 
 
+% Schöner wäre es sicherlich mit einem optionalen Parameter oder die Stern-Variante,
+% aber weil LaTeX so schön einfach und verständlich ist machen wir lieber einen eigenen Befehl,
+% weil mir meine Zeit zu schade dafür ist
+\newenvironment{tabularxnorowcolors}{%
+  \small% Kleinere Schrift
+  \vspace{5pt}% Abstand zwischen Caption und Tabellenbeginn
+  \regulartabularx%
+}{%
+   \endregulartabularx%
+   \vspace{5pt}%
+}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TikZ
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% TikZ
 \RequirePackage{tikz}
 \usetikzlibrary{decorations.pathreplacing} % Braces etc.
+\usetikzlibrary{decorations.text} % text along path, etc.
 \usetikzlibrary{positioning} % Relative Positionierung von Knoten: 3pt left of node
 \usetikzlibrary{backgrounds} % Rahmen ("show background rectangle" aka "framed")
 \usetikzlibrary{fit} % Knoten um andere Knoten herum: fit=(node_a) (node_b) ...
 
 % Baumdiagramme
-\RequirePackage[linguistics]{forest}
+\RequirePackage[linguistics,edges]{forest}
 
 % Kreisdiagramme
 % Achtung: Paket manuell installiert
 \RequirePackage{pgf-pie}
 
-% Standardschrift fuer tikz setzen
+% Standardschrift für tikz setzen
 \tikzset{every picture/.style={font=\sffamily}}
 
 % Rahmen um jedes forest setzen
@@ -257,36 +350,9 @@
 }
 
 
-% Captions
-\RequirePackage[
-    font=small,
-    labelfont=bf,
-    format=hang,
-    justification=justified,
-    singlelinecheck=false
-]{caption}
-\captionsetup[listing]{aboveskip=-4pt}
-%\captionsetup[figure]{margin=15pt}%
-%\captionsetup[table]{skip=15pt} % Quelle unterhalb Tabellen weiter absetzen
-
-% Quelle in Grafik/Tabellen angeben
-% https://tex.stackexchange.com/a/246285
-\newcommand{\source}[1]{\vspace{-5pt} \caption*{\textbf{Quelle:} {#1}} } 
-
-
-
-% Sinnvoller Alias fuer noch kleinere Schrift
-\let\smaller\footnotesize
-
-% Neue Zeile nach \paragraph
-\let\nonewlineparagraph\paragraph
-\renewcommand{\paragraph}[1]{\nonewlineparagraph{#1}\mbox{}\\}
-
-
-
-% Fussnoten innerhalb von Floats (Tabellen, Grafiken)
+%%% Fußnoten innerhalb von Floats (Tabellen, Grafiken)
 % Mit \pushftn vor Float sammeln und mit \popftn am Ende freigeben.
-% Korrekte Seitenplatzierung muss geprueft werden
+% Korrekte Seitenplatzierung muss geprüft werden
 % https://tex.stackexchange.com/a/43695
 \makeatletter
 \newtoks\FTN@ftn
@@ -310,8 +376,7 @@
 
 \makeatother
 
-
-% Fussnoten: Abstand zwischen Ziffer und Text
+%%% Fußnoten: Abstand zwischen Ziffer und Text
 % https://tex.stackexchange.com/a/79065
 \RequirePackage[hang]{footmisc}
 \setlength{\footnotemargin}{-0.5em}
@@ -371,17 +436,31 @@
   }}
 \makeatother
 
-% String-Funktionen
-% Wuerde ohnehin von BibLaTeX geladen werden
+
+%%% String-Funktionen
+% Würde ohnehin von BibLaTeX geladen werden
 \RequirePackage{xstring}
 
-% Work in progress: Demotexte
+% Leerzeichen, falls danach nicht ein Punkt-Zeichen kommt, benötigt für die folgenden Befehle
+\RequirePackage{xspace}
+
+% "z.B." und "u.a." mit schmalem Leerzeichen, vgl. https://www2.informatik.hu-berlin.de/sv/lehre/typographie.pdf
+\newcommand{\zB}{z.\,B.\xspace}
+\newcommand{\ua}{u.\,a.\xspace}
+
+% Seitenanzahl mit schmalem Leerzeichen
+\newcommand{\pg}[1]{S.\,\StrSubstitute{#1}{ }{\,}\xspace}
+
+
+%%% Work in progress: Demotexte
 \RequirePackage{blindtext}
 
 
-% hyperref muss als letztes Paket geladen werden. Das weiss man doch...
+%%% hyperref muss als letztes Paket geladen werden. Das weiss man doch...
 % "My guess is that you are not following the rule "load hyperref as the last package" and that something is redefining footnote."
 % https://tex.stackexchange.com/a/16269/193364
+% "Which packages should be loaded after hyperref instead of before?"
+% https://tex.stackexchange.com/q/1863
 \RequirePackage[
     colorlinks=true, hyperindex,
     linkcolor=black, citecolor=black, urlcolor=black,
@@ -390,6 +469,7 @@
     pdfauthor={\theauthor},
     pdftitle={\thetitle},
     pdfsubject={\thesubject},
+    pdfcreator={LaTeX},
     pdfkeywords={}
 ]{hyperref}
 
