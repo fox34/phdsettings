@@ -29,6 +29,11 @@
 \RequirePackage[ngerman]{babel}
 \RequirePackage{microtype}
 
+% Seiten nicht bis unten füllen
+% https://tex.stackexchange.com/a/36429
+% Dann ggf. auch im Paket footmisc die Option "bottom" aktivieren
+\raggedbottom
+
 % Euro-Zeichen
 \RequirePackage{textcomp}
 
@@ -64,6 +69,7 @@
 % Neue Zeile nach \paragraph
 \let\nonewlineparagraph\paragraph
 \renewcommand{\paragraph}[1]{\nonewlineparagraph{#1}\mbox{}\\}
+\newcommand{\raggedparagraph}[1]{\vspace{-1.5ex}\paragraph{#1}}
 
 
 %%% Zugriff auf Titel, Autor und Datum
@@ -105,17 +111,17 @@
 \newlength{\hangwidth} % Breite des Einzugs für den folgenden Befehl
 \newcommand{\hangingindent}[1]{\settowidth{\hangwidth}{#1}\hangpara{\hangwidth}{1}#1}
 \newcommand{\source}[1]{%
-	\vspace{2pt}% Abstand zum eigentlichen Label etwas vergrößern
-	\raggedright% Zwingend linksbündig
-	\small% Schriftgröße dem Label (siehe Paket caption oben)
-	\hangingindent{\textbf{Quelle: }}% Hängenden Einzug anlegen
-	#1% Text der Quelle hinzufügen
+    \vspace{2pt}% Abstand zum eigentlichen Label etwas vergrößern
+    \raggedright% Zwingend linksbündig
+    \small% Schriftgröße dem Label (siehe Paket caption oben)
+    \hangingindent{\textbf{Quelle: }}% Hängenden Einzug anlegen
+    #1% Text der Quelle hinzufügen
 }
 
 % Mehrere Spalten
 \RequirePackage{multicol}
 
-% cmark (crossmark), xmark (x-mark)-Shortcuts
+% cmark (crossmark), xmark (x-mark)-Shortcuts, Mathematik-Symbole
 \RequirePackage{amssymb}
 \RequirePackage{pifont}
 \newcommand{\cmark}{\ding{51}}
@@ -158,6 +164,11 @@
 \ohead{\headmark} % Kopfzeile aussen: Links: Kapitel, rechts: Unterkapitel
 \ofoot*{\pagemark} % Fusszeile aussen: Seite
 
+% Mathematik...
+\RequirePackage{mathtools} % dcases-Environment
+
+% Float (für Positionierungsoption "H")
+\RequirePackage{float}
 
 %%% Quelltexte
 % newfloat, wird durch minted automatisch geladen
@@ -168,42 +179,58 @@
 % Schrift "Source Code Pro" für Typewriter verwenden, besser zu lesen
 \RequirePackage{sourcecodepro}
 
+% Probleme mit Backtick (`) beheben, siehe
+% https://github.com/silkeh/latex-sourcecodepro/issues/4
+% Sonst:
+% Package textcomp Info: Symbol \textasciigrave not provided by
+% (textcomp)             font family SourceCodePro-TLF in TS1 encoding.
+% (textcomp)             Default family used instead on input line 21.
+% ???
+
 % Minted für schönere Quelltextformatierung
 \RequirePackage[
-	newfloat, % newfloat-Paket nutzen
-	cachedir=.mintedcache % Cache-Verzeichnis
+    newfloat, % newfloat-Paket nutzen
+    cachedir=.mintedcache % Cache-Verzeichnis
 ]{minted}
 
 % R-Eigenschaften
 \newmintedfile{R}{
-	breaklines=true, % Automatischer Zeilenumbruch
-	breakindentnchars=4, % Einrücken bei Zeilenumruch
-	breaksymbolleft=, % Kein Symbol bei Zeilenumbruch
-	fontsize=\small, % Schriftgröße
-	frame=single, % Vollständiger Rahmen
-	framesep=6pt, % Innerer Abstand
-	framerule=.3pt, % Rahmenbreite
-	numbers=left, % Zeilennummern links
-	rulecolor=\color{gray!55}, % Rahmenfarbe
-	style=friendly, % Stil -> vgl. pygmentize -L styles
-	xleftmargin=2em, % Zeilennummern inline
+    breaklines=true, % Automatischer Zeilenumbruch
+    breakindentnchars=4, % Einrücken bei Zeilenumruch
+    breaksymbolleft=, % Kein Symbol bei Zeilenumbruch
+    fontsize=\small, % Schriftgröße
+    frame=single, % Vollständiger Rahmen
+    framesep=6pt, % Innerer Abstand
+    framerule=.3pt, % Rahmenbreite
+    numbers=left, % Zeilennummern links
+    rulecolor=\color{gray!55}, % Rahmenfarbe
+    style=friendly, % Stil -> vgl. pygmentize -L styles
+    xleftmargin=2em, % Zeilennummern inline
 }
 
 % Zeilennummern formatieren
 \renewcommand{\theFancyVerbLine}{%
-	\sffamily\footnotesize\color{gray!75!black}%
-	\arabic{FancyVerbLine}%
+    \sffamily\footnotesize\color{gray!75!black}%
+    \arabic{FancyVerbLine}%
 }
 
 % Quelltext-Environment einrichten
 \SetupFloatingEnvironment{listing}{name=Quelltext, listname=Quelltexte, placement=h!}
 
 % R aus LaTeX heraus ausführen
+% Anmerkung: Der Dateiname darf unter keinen Umständen irgendwelche
+% Sonderzeichen (nicht-ASCII) enthalten! Leerzeichen sind in Ordnung.
 \newcommand{\executeR}[1]{%
-	\ignorespaces%
-	\immediate%
-	\write18{echo; echo "executeR: #1:"; R --slave --vanilla -f '#1' --args FromLaTeX; echo}%
-	\ignorespaces%
+    \ignorespaces%
+    \immediate%
+    \write18{%
+        echo;%
+        echo "executeR: #1:";%
+        cd "/Users/fox/Documents/Studium - Promotion/Datenanalyse";%
+        R --no-save --no-restore --slave -f '#1' --args FromLaTeX;%
+        echo;%
+    }%
+    \ignorespaces%
 }
 
 
@@ -229,6 +256,25 @@
 \counterwithout{footnote}{chapter}
 \counterwithout{listing}{chapter}
 
+% "Anhang" vor Anhangs-Buchstaben
+% https://tex.stackexchange.com/a/319109
+\AddToHook{cmd/appendix/after}{%
+  \AddToHook{cmd/chapterformat/before}{\chapapp\nobreakspace}%
+  \AddToHook{cmd/chaptermarkformat/before}{\chapapp\nobreakspace}%
+  \addtocontents{toc}{\appendixtocentry}%
+}
+
+\NewDocumentCommand{\appendixtocentry}{}{%
+  \DeclareTOCStyleEntry[
+    entrynumberformat=\tocappendixnumber,
+    dynnumwidth
+  ]{chapter}{chapter}%
+}
+\NewDocumentCommand{\tocappendixnumber}{m}{%
+  \appendixname~#1%
+}
+
+
 % Seitenumbruch innerhalb von Listen vermeiden? Klappt aber nicht 100%tig wie gewünscht
 % https://tex.stackexchange.com/a/16264
 %\makeatletter
@@ -237,7 +283,7 @@
 
 
 %%% Tabellen
-\RequirePackage{tabularx,booktabs,multirow} % Tabellenformatierung
+\RequirePackage{tabularx,booktabs,multirow,makecell} % Tabellenformatierung
 \RequirePackage{longtable} % Tabellen über mehrere Seiten
 
 %% Zelldefinitionen
@@ -378,7 +424,7 @@
 
 %%% Fußnoten: Abstand zwischen Ziffer und Text
 % https://tex.stackexchange.com/a/79065
-\RequirePackage[hang]{footmisc}
+\RequirePackage[hang, bottom]{footmisc} 
 \setlength{\footnotemargin}{-0.5em}
 \makeatletter
 \ifFN@para
@@ -447,6 +493,7 @@
 % "z.B." und "u.a." mit schmalem Leerzeichen, vgl. https://www2.informatik.hu-berlin.de/sv/lehre/typographie.pdf
 \newcommand{\zB}{z.\,B.\xspace}
 \newcommand{\ua}{u.\,a.\xspace}
+\newcommand{\dasheisst}{d.\,h.\xspace}
 
 % Seitenanzahl mit schmalem Leerzeichen
 \newcommand{\pg}[1]{S.\,\StrSubstitute{#1}{ }{\,}\xspace}
