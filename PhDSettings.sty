@@ -239,6 +239,13 @@
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
+% Anhang: Nur Kapitel in Gliederung
+% https://tex.stackexchange.com/a/214140
+\RequirePackage{etoolbox}
+\appto\appendix{\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}}
+\appto\listoffigures{\addtocontents{lof}{\protect\setcounter{tocdepth}{1}}}
+\appto\listoftables{\addtocontents{lot}{\protect\setcounter{tocdepth}{1}}}
+
 % Inhaltsübersicht, funktioniert nur bis zum ersten nachfolgenden \tableofcontents. https://komascript.de/node/1003
 \newcommand*{\showtableofcontents}{%
   \begingroup
